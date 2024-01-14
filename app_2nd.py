@@ -4,10 +4,11 @@ from tkinter import *
 import PyPDF2
 from PIL import Image, ImageTk
 from tkinter.filedialog import askopenfile
+import fitz  # PyMuPDF
+import os
+import io
 from functions import display_logo, display_textbox, extract_images, display_icon
-from functions import resize_image, display_images
-
-
+from functions import resize_image, display_images, extract_images_mupdf
 
 page_contents = []
 all_images = []
@@ -76,15 +77,12 @@ header.grid(columnspan=3, rowspan=2, row=0)
 main_content = Frame(root, width=800, height=250, bg="#20bebe")
 main_content.grid(columnspan=3, rowspan=2, row=4)
 
-
 def open_file():
 
 	for i in img_idx:
 		img_idx.pop()
 
 	img_idx.append(0)
-
-
 
 	browse_text.set("loading...")
 	file = askopenfile(parent=root, mode='rb', filetype=[("pdf file", "*.pdf")])
@@ -101,6 +99,7 @@ def open_file():
 		page_content = page_content.replace('\u2122', "'")
 		page_contents.append(page_content)
 
+
 		if displayed_img:
 			displayed_img[-1].grid_forget()
 			displayed_img.pop()
@@ -108,7 +107,13 @@ def open_file():
 		for i in range(0, len(all_images)):
 			all_images.pop()
 
-		images = extract_images(page)
+
+		####################################
+		import fitz  # Import PyMuPDF
+		page = fitz.open(file)
+		####################################
+
+		images = extract_images_mupdf(page)
 		# images = extract_images_from_pdf(page)
 		
 

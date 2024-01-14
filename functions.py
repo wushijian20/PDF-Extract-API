@@ -73,6 +73,35 @@ def resize_image(img):
 	return img
 
 
+import fitz  # PyMuPDF
+import os
+from PIL import Image
+import io
+
+import fitz  # PyMuPDF
+from PIL import Image
+import io
+
+def extract_images_mupdf(page):
+    images = []
+    for img in page.get_page_images(full=True):
+        xref = img[0]
+        pix = fitz.Pixmap(page.doc, xref)
+        
+        # Check if the image uses an alpha channel
+        if pix.alpha:
+            pix = fitz.Pixmap(fitz.csRGB, pix)  # Convert to RGB
+
+        img_data = pix.tobytes()  # Convert the pixmap to bytes
+        img = Image.open(io.BytesIO(img_data))  # Create an Image object
+
+        if img.mode in ["CMYK", "P"]:
+            img = img.convert("RGB")  # Convert to RGB if necessary
+
+        images.append(img)
+        pix = None  # Clean up pixmap
+
+    return images
 
 
 
